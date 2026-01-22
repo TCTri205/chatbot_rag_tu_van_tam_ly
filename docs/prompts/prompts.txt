@@ -1,0 +1,15 @@
+hãy đọc các tài liệu trong thư mục docs/ và bắt đầu triển khai cho giai đoạn 1, đảm bảo đầy đủ, chi tiết, hoàn chỉnh, thống nhất trên toàn bộ hệ thống, đảm bảo không xung đột, không lỗi, không vi phạm các quy tắc đã được ghi trong tài liệu
+
+hãy rà soát lại thật kỹ, rồi trả về kế hoạch kiểm tra lại cho toàn bộ giai đoạn 1 để đảm bảo hoàn thiện, không xuất hiện vấn đề gì, đảm bảo không xung đột, không lỗi, không lặp lại, không vi phạm các quy tắc đã được ghi trong tài liệu
+
+hãy kiểm tra lại từng bước, đảm bảo đầy đủ, chính xác, hoàn chỉnh, thống nhất trên toàn bộ hệ thống, đảm bảo cẩn thận, không xung đột, không lỗi, không lặp lại, không vi phạm các quy tắc đã được ghi trong tài liệu
+
+hãy thực hiện từng bước theo kế hoạch, đảm bảo đầy đủ, chính xác, hoàn chỉnh, thống nhất trên toàn bộ hệ thống, đảm bảo cẩn thận, không xung đột, không lỗi, không lặp lại, không vi phạm các quy tắc đã được ghi trong tài liệu
+
+hãy thực hiện các bước tiếp theo, đảm bảo đầy đủ, chính xác, hoàn chỉnh, thống nhất trên toàn bộ hệ thống, đảm bảo cẩn thận, không xung đột, không lỗi, không lặp lại, không vi phạm các quy tắc đã được ghi trong tài liệu
+
+hãy rà soát thật kỹ để tìm ra chính xác các vấn đề, rồi sửa lỗi triệt để, đảm bảo đầy đủ, chính xác, cẩn thận, hoàn chỉnh, không trùng lặp, xung đột, thống nhất trên toàn bộ hệ thống, không vi phạm các quy tắc đã được ghi trong tài liệu
+
+hãy rà soát toàn diện hệ thống và các tài liệu trong thư mục docs, để có phương án chính xác, hoàn thiện, thống nhất, đáp ứng các yêu cầu của hệ thống
+
+hãy rà soát lại các tài liệu trong thư mục docs và rà soát toàn bộ hệ thống, xem còn thiếu những chức năng nào, thiếu những giao diện nào, thiếu những logic nào, rồi liệt kê ra để lên kế hoạch thực hiện bổ sung, hoàn chỉnh hệ thống, đảm bảo đầy đủ, chính xác, đúng với các yêu cầu hệ thống

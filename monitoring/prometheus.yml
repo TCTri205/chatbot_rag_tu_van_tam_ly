@@ -1,0 +1,22 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    monitor: 'chatbot-tamly'
+
+# Scrape configurations
+scrape_configs:
+  # Backend metrics disabled - endpoint removed due to HTTP/1.1 conflicts
+  # Uncomment after implementing alternative metrics solution
+  # - job_name: 'backend'
+  #   metrics_path: '/api/v1/metrics'
+  #   static_configs:
+  #     - targets: ['backend:8000']
+  #       labels:
+  #         service: 'fastapi-backend'
+    
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+        labels:
+          service: 'prometheus'

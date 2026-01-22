@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="vi" class="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Force browser to never cache this page -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+
+    <meta name="description" content="Chatbot AI tư vấn tâm lý - Hỗ trợ sức khỏe tinh thần 24/7">
+    <meta name="keywords" content="tâm lý, chatbot, tư vấn, sức khỏe tinh thần">
+    <title>TâmLý Bot - Chatbot Tư Vấn Tâm Lý</title>
+
+    <!-- TailwindCSS CDN -->
+    <!-- WARNING: CDN should ONLY be used in development. For production, install Tailwind as PostCSS plugin -->
+    <!-- Suppress CDN production warning -->
+    <script>
+        window.process = window.process || {};
+        window.process.env = window.process.env || {};
+        window.process.env.NODE_ENV = 'development';
+    </script>
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+
+    <!-- Google Fonts - Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Chart.js for Mood History -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+    <!-- Custom CSS (includes theme system) -->
+    <link rel="stylesheet" href="/css/style.css">
+
+    <!-- Tailwind Config -->
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                    colors: {
+                        primary: {
+                            DEFAULT: '#667eea',
+                            50: '#eef2ff',
+                            100: '#e0e7ff',
+                            200: '#c7d2fe',
+                            300: '#a5b4fc',
+                            400: '#818cf8',
+                            500: '#667eea',
+                            600: '#5a67d8',
+                            700: '#4c51bf',
+                            800: '#434190',
+                            900: '#3730a3',
+                        },
+                        secondary: '#764ba2',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+
+<body class="h-screen flex overflow-hidden bg-slate-50 dark:bg-slate-900 font-sans transition-colors duration-300">
+
+    <!-- ============================================
+         SIDEBAR - Desktop Only
+         ============================================ -->
+    <aside
+        class="w-72 bg-white dark:bg-slate-800 border-r border-slate-200 dark:border-slate-700 hidden md:flex flex-col shadow-sm">
+        <!-- Logo & Title -->
+        <div class="p-5 border-b border-slate-100 dark:border-slate-700">
+            <div class="flex items-center space-x-3">
+                <div
+                    class="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center">
+                    <i class="fas fa-brain text-xl text-white"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold gradient-text">TamLy Bot</h1>
+                    <p class="text-xs text-slate-500 dark:text-slate-400">Trợ lý tâm lý AI</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="p-4 space-y-3">
+            <!-- New Chat Button -->
+            <button id="new-chat-button"
+                class="w-full bg-gradient-to-r from-primary to-secondary text-white p-3 rounded-xl hover:shadow-lg hover:scale-[1.02] transition-all duration-200 flex items-center justify-center space-x-2 font-medium">
+                <i class="fas fa-plus"></i>
+                <span>Cuộc trò chuyện mới</span>
+            </button>
+
+            <!-- Mood Check-in Button -->
+            <button id="mood-button"
+                class="w-full bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 p-3 rounded-xl hover:bg-purple-100 dark:hover:bg-purple-900/50 transition-all duration-200 flex items-center justify-center space-x-2 font-medium">
+                <i class="fas fa-heart"></i>
+                <span>Tâm trạng hôm nay</span>
+            </button>
+
+            <!-- Exercises Button -->
+            <button id="exercises-button"
+                class="w-full bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 p-3 rounded-xl hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-all duration-200 flex items-center justify-center space-x-2 font-medium">
+                <i class="fas fa-spa"></i>
+                <span>Bài tập thư giãn</span>
+            </button>
+
+            <!-- Export Data Button -->
+            <button onclick="window.API.exportData()"
+                class="w-full bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 p-3 rounded-xl hover:bg-emerald-100 dark:hover:bg-emerald-900/50 transition-all duration-200 flex items-center justify-center space-x-2 font-medium"
+                title="Tải về lịch sử trò chuyện">
+                <i class="fas fa-file-export"></i>
+                <span>Xuất dữ liệu</span>
+            </button>
+        </div>
+
+        <!-- History List -->
+        <div class="flex-1 overflow-y-auto p-4 space-y-2 custom-scrollbar" id="history-list">
+            <div class="text-xs text-slate-400 dark:text-slate-500 text-center py-4">
+                <i class="fas fa-clock text-lg mb-2 block"></i>
+                <p>Lịch sử chat sẽ hiển thị ở đây</p>
+            </div>
+        </div>
+
+        <!-- Footer Info -->
+        <div class="p-4 border-t border-slate-100 dark:border-slate-700">
+            <div class="flex items-center space-x-2 text-xs text-slate-500 dark:text-slate-400">
+                <i class="fas fa-shield-heart text-primary"></i>
+                <span>Dữ liệu được bảo mật</span>
+            </div>
+        </div>
+    </aside>
+
+    <!-- ============================================
+         MAIN CHAT AREA
+         ============================================ -->
+    <main
+        class="flex-1 flex flex-col relative bg-gradient-to-br from-blue-50 to-purple-50 dark:from-slate-900 dark:to-slate-800">
+
+        <!-- Header -->
+        <header
+            class="bg-white/80 dark:bg-slate-800/80 backdrop-blur-lg border-b border-slate-200 dark:border-slate-700 p-4 flex justify-between items-center shadow-sm z-10">
+            <div class="flex items-center space-x-3">
+                <!-- Mobile Menu Icon -->
+                <button id="mobile-menu-btn"
+                    class="md:hidden text-slate-600 dark:text-slate-300 p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700">
+                    <i class="fas fa-bars text-xl"></i>
+                </button>
+
+                <div
+                    class="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center md:hidden">
+                    <i class="fas fa-brain text-white"></i>
+                </div>
+
+                <div>
+                    <h2 class="font-semibold text-slate-800 dark:text-slate-100 text-lg">Tư vấn viên AI</h2>
+                    <p class="text-xs text-slate-500 dark:text-slate-400">Luôn sẵn sàng lắng nghe bạn</p>
+                </div>
+            </div>
+
+            <div class="flex items-center space-x-3">
+                <!-- Connection Status -->
+                <div id="connection-status"
+                    class="text-sm flex items-center space-x-2 px-3 py-1.5 rounded-full bg-emerald-50 dark:bg-emerald-900/30"
+                    title="Trạng thái kết nối">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                    <span
+                        class="text-emerald-600 dark:text-emerald-400 text-xs font-medium hidden sm:inline">Online</span>
+                </div>
+
+                <!-- Clear History Button -->
+                <button id="clear-history-button"
+                    class="text-sm text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 transition flex items-center space-x-1 hidden p-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/30"
+                    title="Xóa lịch sử chat">
+                    <i class="fas fa-trash-alt"></i>
+                    <span class="hidden lg:inline">Xóa lịch sử</span>
+                </button>
+
+                <!-- Admin Dashboard Link -->
+                <a id="admin-link" href="/admin.html"
+                    class="text-sm text-orange-600 dark:text-orange-400 hover:text-orange-800 dark:hover:text-orange-300 transition flex items-center space-x-1 hidden p-2 rounded-lg hover:bg-orange-50 dark:hover:bg-orange-900/30"
+                    title="Truy cập Admin Dashboard">
+                    <i class="fas fa-cog text-lg"></i>
+                    <span class="hidden lg:inline">Admin</span>
+                </a>
+
+                <!-- Theme Toggle Button -->
+                <button data-theme-toggle class="theme-toggle" title="Chuyển chế độ sáng/tối">
+                    <i class="fas fa-moon text-slate-600"></i>
+                </button>
+
+                <!-- Auth Button -->
+                <button id="auth-button"
+                    class="flex items-center space-x-2 px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 transition-all duration-200"
+                    title="Đăng nhập để lưu lịch sử">
+                    <i class="fas fa-user-circle text-lg text-primary dark:text-primary-400"></i>
+                    <span id="auth-button-text"
+                        class="text-sm font-medium text-slate-700 dark:text-slate-200 hidden sm:inline">Đăng nhập</span>
+                </button>
+            </div>
+        </header>
+
+
+        <!-- Chat Container -->
+        <div id="chat-container" class="flex-1 overflow-y-auto p-4 md:p-6 space-y-4 custom-scrollbar">
+            <!-- Welcome message will be added here by JavaScript -->
+        </div>
+
+        <!-- Input Area - Fixed at Bottom -->
+        <div
+            class="bg-white/90 dark:bg-slate-800/90 backdrop-blur-lg border-t border-slate-200 dark:border-slate-700 p-4 shadow-lg mobile-input-padding">
+            <div class="max-w-4xl mx-auto">
+                <!-- Input Wrapper -->
+                <div class="flex gap-3 items-end">
+                    <!-- Textarea -->
+                    <div class="flex-1 relative">
+                        <textarea id="user-input" rows="1"
+                            class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-2xl p-4 pr-12 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 resize-none auto-resize transition-all text-slate-800 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500"
+                            placeholder="Hãy chia sẻ câu chuyện của bạn..." maxlength="2000"></textarea>
+
+                        <!-- Character count -->
+                        <div class="absolute bottom-3 right-3 text-xs text-slate-400 dark:text-slate-500 hidden"
+                            id="char-count">
+                            0/2000
+                        </div>
+                    </div>
+
+                    <!-- Send Button -->
+                    <button id="send-button"
+                        class="send-button bg-gradient-to-r from-primary to-secondary text-white p-4 rounded-2xl hover:shadow-lg w-14 h-14 flex items-center justify-center transition-all duration-200"
+                        title="Gửi tin nhắn (Enter)">
+                        <i class="fas fa-paper-plane text-lg"></i>
+                    </button>
+                </div>
+
+                <!-- Disclaimer Text -->
+                <div
+                    class="text-center text-xs text-slate-400 dark:text-slate-500 mt-3 flex items-center justify-center space-x-2">
+                    <i class="fas fa-info-circle"></i>
+                    <span>AI có thể mắc lỗi. Khi gặp khủng hoảng, hãy gọi <strong class="text-red-500">Tổng đài
+                            111</strong></span>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- ============================================
+         MOBILE SIDEBAR OVERLAY
+         ============================================ -->
+    <div id="mobile-sidebar-overlay" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 hidden md:hidden"
+        onclick="closeMobileSidebar()"></div>
+
+    <!-- Mobile Sidebar -->
+    <aside id="mobile-sidebar"
+        class="fixed left-0 top-0 bottom-0 w-72 bg-white dark:bg-slate-800 z-50 transform -translate-x-full transition-transform duration-300 md:hidden shadow-2xl">
+        <!-- Close button -->
+        <div class="p-4 flex justify-between items-center border-b border-slate-100 dark:border-slate-700">
+            <div class="flex items-center space-x-2">
+                <div
+                    class="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-secondary flex items-center justify-center">
+                    <i class="fas fa-brain text-white text-sm"></i>
+                </div>
+                <span class="font-bold gradient-text">TamLy Bot</span>
+            </div>
+            <button onclick="closeMobileSidebar()"
+                class="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-400">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+
+        <!-- Mobile menu items (clone of sidebar) -->
+        <div class="p-4 space-y-3">
+            <button onclick="document.getElementById('new-chat-button').click(); closeMobileSidebar();"
+                class="w-full bg-gradient-to-r from-primary to-secondary text-white p-3 rounded-xl flex items-center justify-center space-x-2 font-medium">
+                <i class="fas fa-plus"></i>
+                <span>Cuộc trò chuyện mới</span>
+            </button>
+
+            <button onclick="document.getElementById('mood-button').click(); closeMobileSidebar();"
+                class="w-full bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 p-3 rounded-xl flex items-center justify-center space-x-2 font-medium">
+                <i class="fas fa-heart"></i>
+                <span>Tâm trạng hôm nay</span>
+            </button>
+
+            <button onclick="document.getElementById('exercises-button').click(); closeMobileSidebar();"
+                class="w-full bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 p-3 rounded-xl flex items-center justify-center space-x-2 font-medium">
+                <i class="fas fa-spa"></i>
+                <span>Bài tập thư giãn</span>
+            </button>
+
+            <button onclick="window.API.exportData(); closeMobileSidebar();"
+                class="w-full bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 p-3 rounded-xl flex items-center justify-center space-x-2 font-medium">
+                <i class="fas fa-file-export"></i>
+                <span>Xuất dữ liệu</span>
+            </button>
+        </div>
+    </aside>
+
+    <!-- ============================================
+         DISCLAIMER MODAL
+         ============================================ -->
+    <div id="disclaimer-modal" class="fixed inset-0 modal-backdrop hidden items-center justify-center z-50 p-4">
+        <div class="bg-white dark:bg-slate-800 rounded-2xl max-w-2xl w-full shadow-2xl slide-up overflow-hidden">
+            <!-- Header -->
+            <div class="bg-gradient-to-r from-primary to-secondary text-white p-6">
+                <div class="flex items-center space-x-3">
+                    <i class="fas fa-shield-heart text-3xl"></i>
+                    <div>
+                        <h3 class="text-2xl font-bold">Chào mừng đến với Chatbot Tâm Lý</h3>
+                        <p class="text-sm opacity-90">Trợ lý AI hỗ trợ sức khỏe tinh thần</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Content -->
+            <div class="p-6 space-y-4 max-h-96 overflow-y-auto custom-scrollbar">
+                <div class="prose prose-sm max-w-none dark:prose-invert">
+                    <h4 class="font-bold text-slate-800 dark:text-slate-100 flex items-center space-x-2">
+                        <i class="fas fa-exclamation-triangle text-yellow-500"></i>
+                        <span>Điều khoản sử dụng quan trọng:</span>
+                    </h4>
+
+                    <ul class="text-slate-700 dark:text-slate-300 space-y-3 text-sm">
+                        <li class="flex items-start space-x-3">
+                            <i class="fas fa-check text-emerald-500 mt-1 flex-shrink-0"></i>
+                            <span><strong>Không thay thế chuyên gia:</strong> Chatbot là công cụ hỗ trợ, không thay thế
+                                tư vấn y tế chuyên nghiệp.</span>
+                        </li>
+                        <li class="flex items-start space-x-3">
+                            <i class="fas fa-check text-emerald-500 mt-1 flex-shrink-0"></i>
+                            <span><strong>Bảo mật thông tin:</strong> Dữ liệu chat được mã hóa và bảo mật theo tiêu
+                                chuẩn cao nhất.</span>
+                        </li>
+                        <li class="flex items-start space-x-3">
+                            <i class="fas fa-check text-emerald-500 mt-1 flex-shrink-0"></i>
+                            <span><strong>Hỗ trợ khẩn cấp:</strong> Trong trường hợp khủng hoảng, vui lòng liên hệ
+                                <strong class="text-red-600 dark:text-red-400">Tổng đài 111</strong> hoặc cơ quan y tế
+                                địa phương.</span>
+                        </li>
+                        <li class="flex items-start space-x-3">
+                            <i class="fas fa-check text-emerald-500 mt-1 flex-shrink-0"></i>
+                            <span><strong>Dữ liệu khách:</strong> Với người dùng khách, dữ liệu chat có thể bị xóa sau
+                                30 ngày không hoạt động.</span>
+                        </li>
+                    </ul>
+
+                    <div class="bg-blue-50 dark:bg-blue-900/30 border-l-4 border-primary p-4 rounded mt-4">
+                        <p class="text-sm text-slate-700 dark:text-slate-300">
+                            <i class="fas fa-lightbulb text-yellow-500"></i>
+                            <strong>Gợi ý:</strong> Hãy chia sẻ một cách chân thành để chatbot hiểu và hỗ trợ bạn tốt
+                            nhất.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div
+                class="p-6 bg-slate-50 dark:bg-slate-900 flex gap-3 justify-end border-t border-slate-200 dark:border-slate-700">
+                <button id="disclaimer-decline"
+                    class="px-6 py-2.5 border border-slate-300 dark:border-slate-600 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition text-slate-700 dark:text-slate-300 font-medium">
+                    Hủy
+                </button>
+                <button id="disclaimer-accept"
+                    class="px-6 py-2.5 bg-gradient-to-r from-primary to-secondary text-white rounded-xl hover:shadow-lg transition-all duration-200 font-medium">
+                    Tôi đã hiểu và đồng ý
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================
+         EXERCISES MODAL
+         ============================================ -->
+    <div id="exercises-modal" class="modal-backdrop fixed inset-0 hidden items-center justify-center z-50 p-4">
+        <div
+            class="bg-white dark:bg-slate-800 rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col shadow-2xl">
+            <!-- Header -->
+            <div class="bg-gradient-to-r from-blue-500 to-cyan-500 text-white p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h3 class="text-2xl font-bold">🧘 Bài tập thư giãn</h3>
+                        <p class="text-sm mt-1 text-blue-100">Lựa chọn bài tập phù hợp để giảm căng thẳng</p>
+                    </div>
+                    <button id="close-exercises-modal"
+                        class="text-white/80 hover:text-white text-2xl p-2 hover:bg-white/10 rounded-lg transition">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Category Tabs -->
+            <div id="exercise-tabs"
+                class="flex gap-2 p-4 border-b border-slate-200 dark:border-slate-700 overflow-x-auto bg-slate-50 dark:bg-slate-900">
+                <!-- Tabs will be dynamically loaded -->
+            </div>
+
+            <!-- Exercises List -->
+            <div id="exercises-list"
+                class="flex-1 overflow-y-auto p-6 custom-scrollbar grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Exercises will be dynamically loaded -->
+                <div class="col-span-full text-center text-slate-500 dark:text-slate-400 py-8">
+                    <i class="fas fa-spinner fa-spin text-3xl mb-3"></i>
+                    <p>Đang tải bài tập...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================
+         EXERCISE DETAIL MODAL
+         ============================================ -->
+    <div id="exercise-detail-modal" class="modal-backdrop fixed inset-0 hidden items-center justify-center z-50 p-4">
+        <div
+            class="bg-white dark:bg-slate-800 rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col shadow-2xl">
+            <!-- Header -->
+            <div class="p-6 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between">
+                <h2 class="text-xl font-bold text-slate-800 dark:text-slate-100">Chi Tiết Bài Tập</h2>
+                <button onclick="closeExerciseDetail()"
+                    class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-2xl p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <!-- Content -->
+            <div id="exercise-detail-content" class="flex-1 overflow-y-auto p-6 custom-scrollbar">
+                <!-- Content will be dynamically loaded -->
+            </div>
+
+            <!-- Footer -->
+            <div class="p-4 border-t border-slate-200 dark:border-slate-700 text-center bg-slate-50 dark:bg-slate-900">
+                <button onclick="closeExerciseDetail()"
+                    class="px-6 py-2.5 bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-xl hover:bg-slate-300 dark:hover:bg-slate-600 transition font-medium">
+                    Đóng
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================
+         SAFETY / CRISIS MODAL
+         ============================================ -->
+    <div id="safety-modal" class="fixed inset-0 modal-backdrop hidden items-center justify-center z-50 p-4">
+        <div
+            class="bg-white dark:bg-slate-800 rounded-2xl max-w-md w-full shadow-2xl slide-up overflow-hidden crisis-modal">
+            <!-- Header -->
+            <div class="bg-red-500 text-white p-6">
+                <div class="flex items-center space-x-3">
+                    <i class="fas fa-exclamation-triangle text-3xl animate-pulse"></i>
+                    <div>
+                        <h3 class="text-2xl font-bold">Cảnh báo SOS</h3>
+                        <p class="text-sm opacity-90">Chúng tôi rất lo lắng cho bạn</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Content -->
+            <div class="p-6 space-y-4">
+                <p class="text-slate-700 dark:text-slate-300 font-medium">
+                    Chúng tôi phát hiện bạn có thể đang gặp khủng hoảng tâm lý nghiêm trọng.
+                    Vui lòng <strong class="text-red-600 dark:text-red-400">liên hệ ngay</strong> với đường dây nóng hỗ
+                    trợ:
+                </p>
+
+                <!-- Hotlines List -->
+                <ul id="hotlines-list" class="space-y-3">
+                    <!-- Hotlines will be populated by JavaScript -->
+                    <li class="hotline-item p-4 bg-red-50 dark:bg-red-900/30 rounded-xl">
+                        <div class="font-bold text-red-700 dark:text-red-300">📞 Tổng đài BVTE Quốc gia</div>
+                        <div class="text-2xl font-bold text-red-600 dark:text-red-400">111</div>
+                        <div class="text-sm text-slate-600 dark:text-slate-400">24/7</div>
+                    </li>
+                    <li class="hotline-item p-4 bg-red-50 dark:bg-red-900/30 rounded-xl">
+                        <div class="font-bold text-red-700 dark:text-red-300">📞 Cấp cứu Y tế</div>
+                        <div class="text-2xl font-bold text-red-600 dark:text-red-400">115</div>
+                        <div class="text-sm text-slate-600 dark:text-slate-400">24/7</div>
+                    </li>
+                </ul>
+
+                <div class="bg-yellow-50 dark:bg-yellow-900/30 border-l-4 border-yellow-400 p-4 rounded-r-xl">
+                    <p class="text-sm text-slate-700 dark:text-slate-300">
+                        <i class="fas fa-heart text-red-500"></i>
+                        <strong>Bạn không đơn độc.</strong> Luôn có người sẵn sàng giúp đỡ bạn.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="p-6 bg-slate-50 dark:bg-slate-900 border-t border-slate-200 dark:border-slate-700">
+                <button id="safety-modal-close"
+                    class="w-full bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-slate-200 p-3 rounded-xl hover:bg-slate-300 dark:hover:bg-slate-600 transition font-medium">
+                    Đã hiểu
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================
+         CLEAR HISTORY CONFIRMATION MODAL
+         ============================================ -->
+    <div id="clear-history-modal" class="modal-backdrop fixed inset-0 hidden items-center justify-center z-50 p-4">
+        <div class="bg-white dark:bg-slate-800 rounded-2xl max-w-md w-full shadow-2xl slide-up overflow-hidden">
+            <!-- Header -->
+            <div class="bg-red-500 text-white p-6">
+                <div class="flex items-center space-x-3">
+                    <i class="fas fa-exclamation-triangle text-3xl"></i>
+                    <div>
+                        <h3 class="text-2xl font-bold">Xác nhận xóa lịch sử</h3>
+                        <p class="text-sm opacity-90">Hành động này không thể hoàn tác</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Content -->
+            <div class="p-6">
+                <p class="text-slate-700 dark:text-slate-300">
+                    Bạn có chắc chắn muốn xóa toàn bộ lịch sử chat?
+                    Dữ liệu sẽ được lưu trữ nhưng không thể khôi phục trong giao diện người dùng.
+                </p>
+            </div>
+
+            <!-- Actions -->
+            <div
+                class="p-6 bg-slate-50 dark:bg-slate-900 flex gap-3 justify-end border-t border-slate-200 dark:border-slate-700">
+                <button id="cancel-clear-history"
+                    class="px-6 py-2.5 border border-slate-300 dark:border-slate-600 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition text-slate-700 dark:text-slate-300 font-medium">
+                    Hủy
+                </button>
+                <button id="confirm-clear-history"
+                    class="px-6 py-2.5 bg-red-500 text-white rounded-xl hover:bg-red-600 transition font-medium">
+                    Xóa lịch sử
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================
+         AUTH MODAL (Login/Register)
+         ============================================ -->
+    <div id="auth-modal" class="modal-backdrop fixed inset-0 hidden items-center justify-center z-50 p-4">
+        <div class="bg-white dark:bg-slate-800 rounded-2xl max-w-md w-full shadow-2xl slide-up overflow-hidden">
+            <!-- Tab Toggle -->
+            <div class="flex border-b border-slate-200 dark:border-slate-700">
+                <button id="login-tab"
+                    class="flex-1 p-4 font-semibold border-b-2 border-primary text-primary transition">
+                    Đăng nhập
+                </button>
+                <button id="register-tab"
+                    class="flex-1 p-4 font-semibold text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition border-b-2 border-transparent">
+                    Đăng ký
+                </button>
+            </div>
+
+            <!-- Login Form -->
+            <div id="login-form" class="p-6">
+                <form id="login-form-element" class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Email</label>
+                        <input id="login-email" type="email" placeholder="email@example.com" required
+                            autocomplete="email"
+                            class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl p-3 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 text-slate-800 dark:text-slate-100 placeholder-slate-400" />
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Mật
+                            khẩu</label>
+                        <input id="login-password" type="password" placeholder="Nhập mật khẩu" required
+                            autocomplete="current-password"
+                            class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl p-3 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 text-slate-800 dark:text-slate-100 placeholder-slate-400" />
+                    </div>
+                    <button type="submit"
+                        class="w-full bg-gradient-to-r from-primary to-secondary text-white p-3 rounded-xl hover:shadow-lg transition font-medium">
+                        Đăng nhập
+                    </button>
+                </form>
+            </div>
+
+            <!-- Register Form (hidden by default) -->
+            <div id="register-form" class="p-6 hidden">
+                <form id="register-form-element" class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Tên người
+                            dùng</label>
+                        <input id="register-username" type="text" placeholder="Tên hiển thị" required
+                            autocomplete="username"
+                            class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl p-3 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 text-slate-800 dark:text-slate-100 placeholder-slate-400" />
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Email</label>
+                        <input id="register-email" type="email" placeholder="email@example.com" required
+                            autocomplete="email"
+                            class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl p-3 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 text-slate-800 dark:text-slate-100 placeholder-slate-400" />
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Mật
+                            khẩu</label>
+                        <input id="register-password" type="password" placeholder="Tối thiểu 8 ký tự" required
+                            minlength="8" autocomplete="new-password"
+                            class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl p-3 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 text-slate-800 dark:text-slate-100 placeholder-slate-400" />
+                    </div>
+                    <button type="submit"
+                        class="w-full bg-gradient-to-r from-primary to-secondary text-white p-3 rounded-xl hover:shadow-lg transition font-medium">
+                        Đăng ký
+                    </button>
+                </form>
+            </div>
+
+            <div class="p-4 text-center border-t border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900">
+                <button id="close-auth-modal"
+                    class="text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 text-sm font-medium">
+                    Tiếp tục với tư cách khách
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================
+         PROFILE MODAL (Edit User Profile)
+         ============================================ -->
+    <div id="profile-modal" class="modal-backdrop fixed inset-0 hidden items-center justify-center z-50 p-4">
+        <div class="bg-white dark:bg-slate-800 rounded-2xl max-w-md w-full shadow-2xl slide-up overflow-hidden">
+            <!-- Header -->
+            <div class="bg-gradient-to-r from-primary to-secondary text-white p-6">
+                <div class="flex items-center space-x-3">
+                    <i class="fas fa-user-edit text-3xl"></i>
+                    <div>
+                        <h3 class="text-2xl font-bold">Thông tin cá nhân</h3>
+                        <p class="text-sm opacity-90">Cập nhật hồ sơ của bạn</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Content -->
+            <div class="p-6">
+                <form id="profile-form" class="space-y-4">
+                    <!-- Email (read-only) -->
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Email</label>
+                        <input id="profile-email" type="email" readonly
+                            class="w-full bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-3 text-slate-500 dark:text-slate-400 cursor-not-allowed" />
+                        <p class="text-xs text-slate-400 dark:text-slate-500 mt-1">Email không thể thay đổi</p>
+                    </div>
+
+                    <!-- Username -->
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Tên hiển
+                            thị</label>
+                        <input id="profile-username" type="text" placeholder="Nhập tên hiển thị" required minlength="2"
+                            maxlength="50"
+                            class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl p-3 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 text-slate-800 dark:text-slate-100" />
+                    </div>
+
+                    <!-- Role (read-only) -->
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Vai trò</label>
+                        <input id="profile-role" type="text" readonly
+                            class="w-full bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-3 text-slate-500 dark:text-slate-400 cursor-not-allowed capitalize" />
+                    </div>
+
+                    <button type="submit" id="profile-save-btn"
+                        class="w-full bg-gradient-to-r from-primary to-secondary text-white p-3 rounded-xl hover:shadow-lg transition font-medium">
+                        <i class="fas fa-save mr-2"></i>Lưu thay đổi
+                    </button>
+                </form>
+            </div>
+
+            <!-- Footer -->
+            <div
+                class="p-4 text-center border-t border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 flex justify-between">
+                <button id="close-profile-modal"
+                    class="text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 text-sm font-medium">
+                    <i class="fas fa-times mr-1"></i>Đóng
+                </button>
+                <button id="logout-btn"
+                    class="text-red-500 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 text-sm font-medium">
+                    <i class="fas fa-sign-out-alt mr-1"></i>Đăng xuất
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================
+         MOOD MODAL (Mood Check-in)
+         ============================================ -->
+    <div id="mood-modal" class="modal-backdrop fixed inset-0 hidden items-center justify-center z-50 p-4">
+        <div class="bg-white dark:bg-slate-800 rounded-2xl max-w-lg w-full shadow-2xl slide-up overflow-hidden">
+            <div class="bg-gradient-to-r from-purple-500 to-pink-500 text-white p-6">
+                <h3 class="text-2xl font-bold">Tâm trạng hôm nay của bạn?</h3>
+                <p class="text-sm mt-1 text-purple-100">Chia sẻ cảm xúc để chúng tôi hiểu bạn hơn</p>
+            </div>
+
+            <div class="p-6">
+                <!-- Mood Selector -->
+                <div id="mood-selector" class="flex justify-around mb-6">
+                    <button data-mood="1" data-label="angry"
+                        class="mood-btn text-5xl hover:scale-125 transition-transform duration-200 p-2"
+                        title="Tức giận">😠</button>
+                    <button data-mood="2" data-label="sad"
+                        class="mood-btn text-5xl hover:scale-125 transition-transform duration-200 p-2"
+                        title="Buồn bã">😢</button>
+                    <button data-mood="3" data-label="neutral"
+                        class="mood-btn text-5xl hover:scale-125 transition-transform duration-200 p-2"
+                        title="Bình thường">😐</button>
+                    <button data-mood="4" data-label="happy"
+                        class="mood-btn text-5xl hover:scale-125 transition-transform duration-200 p-2"
+                        title="Vui vẻ">😊</button>
+                    <button data-mood="5" data-label="excited"
+                        class="mood-btn text-5xl hover:scale-125 transition-transform duration-200 p-2"
+                        title="Phấn khích">🤩</button>
+                </div>
+
+                <!-- Optional Note -->
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Ghi chú (tùy
+                        chọn)</label>
+                    <textarea id="mood-note" rows="2" placeholder="Bạn muốn chia sẻ gì về tâm trạng này?"
+                        class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl p-3 focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 resize-none text-slate-800 dark:text-slate-100 placeholder-slate-400"></textarea>
+                </div>
+
+                <button id="submit-mood" disabled
+                    class="w-full bg-gradient-to-r from-purple-500 to-pink-500 text-white p-3 rounded-xl hover:shadow-lg transition font-medium disabled:opacity-50 disabled:cursor-not-allowed">
+                    Lưu tâm trạng
+                </button>
+            </div>
+
+            <!-- Mood History -->
+            <div class="border-t border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 p-6">
+                <h4 class="font-bold text-slate-700 dark:text-slate-200 mb-3 flex items-center">
+                    <i class="fas fa-chart-line text-purple-500 mr-2"></i>
+                    Lịch sử 7 ngày
+                </h4>
+                <!-- Chart Container -->
+                <div id="mood-chart-container" class="chart-container" style="height: 200px;">
+                    <canvas id="moodHistoryChart"></canvas>
+                </div>
+                <!-- Fallback List (hidden when chart is available) -->
+                <div id="mood-history-container" class="max-h-40 overflow-y-auto custom-scrollbar mt-4 hidden">
+                    <!-- Populated by MoodTracker -->
+                    <p class="text-center text-slate-400 dark:text-slate-500 py-4">Đang tải...</p>
+                </div>
+            </div>
+
+            <div class="p-4 text-center border-t border-slate-200 dark:border-slate-700">
+                <button id="close-mood-modal"
+                    class="text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 text-sm font-medium">Đóng</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================
+         JAVASCRIPT MODULES
+         ============================================ -->
+    <!-- Theme Manager (load first for immediate theme application) -->
+    <script src="/js/theme.js"></script>
+
+    <!-- Load in order: Toast → TabManager → Auth → Mood → State → API → App → Exercises → Clear History → Profile -->
+    <script src="/js/toast.js"></script>
+    <script src="/js/tab_manager.js?v=20241222d" onerror="console.error('❌ FAILED TO LOAD tab_manager.js');">
+    </script>
+    <script src="/js/auth.js?v=20241222d"></script>
+    <script src="/js/mood.js"></script>
+    <script src="/js/state.js"></script>
+    <script src="/js/api.js"></script>
+    <script src="/js/app.js?v=20241222d"></script>
+    <script src="/js/exercises.js"></script>
+    <script src="/js/clear_history.js"></script>
+    <script src="/js/profile.js?v=20241222d"></script>
+
+    <!-- Mobile Sidebar Script -->
+    <script>
+        // Mobile sidebar functions
+        function openMobileSidebar() {
+            document.getElementById('mobile-sidebar').classList.remove('-translate-x-full');
+            document.getElementById('mobile-sidebar-overlay').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeMobileSidebar() {
+            document.getElementById('mobile-sidebar').classList.add('-translate-x-full');
+            document.getElementById('mobile-sidebar-overlay').classList.add('hidden');
+            document.body.style.overflow = '';
+        }
+
+        // Attach event listener to mobile menu button
+        document.addEventListener('DOMContentLoaded', function () {
+            const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+            if (mobileMenuBtn) {
+                mobileMenuBtn.addEventListener('click', openMobileSidebar);
+            }
+        });
+    </script>
+
+</body>
+
+</html>

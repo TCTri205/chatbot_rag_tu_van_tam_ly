@@ -1,0 +1,1320 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- CRITICAL: Force browser to never cache this page -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+
+    <meta name="description" content="Admin Dashboard - Chatbot Tư Vấn Tâm Lý">
+    <title>Admin Dashboard - TamLy Bot</title>
+
+    <!-- TailwindCSS CDN (Development Only) -->
+    <!-- WARNING: For production, replace with compiled Tailwind CSS -->
+    <!-- See: https://tailwindcss.com/docs/installation -->
+    <script>
+        window.process = window.process || {};
+        window.process.env = window.process.env || {};
+        window.process.env.NODE_ENV = 'development';
+    </script>
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+
+    <!-- Google Fonts - Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/css/style.css">
+
+    <!-- Tailwind Config -->
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                    colors: {
+                        primary: {
+                            DEFAULT: '#667eea',
+                            400: '#818cf8',
+                            500: '#667eea',
+                            600: '#5a67d8',
+                        },
+                        secondary: '#764ba2',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+
+<body class="bg-slate-50 dark:bg-slate-900 font-sans transition-colors duration-300 min-h-screen">
+
+    <!-- Header -->
+    <header
+        class="bg-white dark:bg-slate-800 shadow-sm border-b border-slate-200 dark:border-slate-700 sticky top-0 z-20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div
+                    class="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center">
+                    <i class="fas fa-brain text-xl text-white"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold text-slate-800 dark:text-slate-100">TamLy Bot</h1>
+                    <span class="text-xs text-slate-500 dark:text-slate-400">Admin Dashboard</span>
+                </div>
+            </div>
+            <div class="flex items-center space-x-3">
+                <!-- Theme Toggle -->
+                <button data-theme-toggle class="theme-toggle" title="Chuyển chế độ sáng/tối">
+                    <i class="fas fa-moon text-slate-600"></i>
+                </button>
+                <!-- Back to Chat -->
+                <a href="/"
+                    class="flex items-center space-x-2 px-4 py-2 rounded-xl bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 transition font-medium text-sm">
+                    <i class="fas fa-arrow-left"></i>
+                    <span class="hidden sm:inline">Quay lại Chat</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+
+        <!-- Overview Stats -->
+        <section class="mb-8">
+            <h2 class="text-xl font-bold text-slate-800 dark:text-slate-100 mb-4 flex items-center">
+                <i class="fas fa-chart-pie text-primary mr-2"></i>
+                Tổng Quan Hệ Thống
+            </h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6" id="overview-stats">
+                <!-- Loading placeholder -->
+                <div class="stat-card animate-pulse">
+                    <div class="h-8 bg-slate-200 dark:bg-slate-700 rounded w-1/2"></div>
+                    <div class="h-4 bg-slate-200 dark:bg-slate-700 rounded w-3/4 mt-2"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Charts Row -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6 mb-8">
+
+            <!-- Word Cloud / Top Keywords -->
+            <section
+                class="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700">
+                <h2 class="text-lg font-bold text-slate-800 dark:text-slate-100 mb-4 flex items-center">
+                    <i class="fas fa-cloud text-blue-500 mr-2"></i>
+                    Từ Khóa Phổ Biến
+                </h2>
+                <div class="chart-container">
+                    <canvas id="wordCloudChart"></canvas>
+                </div>
+            </section>
+
+            <!-- Mood Trends -->
+            <section
+                class="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700">
+                <h2 class="text-lg font-bold text-slate-800 dark:text-slate-100 mb-4 flex items-center">
+                    <i class="fas fa-heart text-red-500 mr-2"></i>
+                    Xu Hướng Tâm Trạng (30 ngày)
+                </h2>
+                <div class="chart-container">
+                    <canvas id="moodTrendsChart"></canvas>
+                </div>
+            </section>
+
+        </div>
+
+        <!-- User Management -->
+        <section
+            class="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 mb-8">
+            <h2 class="text-lg font-bold text-slate-800 dark:text-slate-100 mb-4 flex items-center">
+                <i class="fas fa-users-cog text-indigo-500 mr-2"></i>
+                Quản Lý Người Dùng
+            </h2>
+
+            <!-- Filter & Search -->
+            <div class="flex flex-col md:flex-row gap-3 mb-4 justify-between items-stretch md:items-center">
+                <div class="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
+                    <input type="text" id="user-search" placeholder="Tìm tên, email..."
+                        class="flex-1 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-primary text-slate-800 dark:text-slate-100 placeholder-slate-400"
+                        onkeypress="if(event.key === 'Enter') loadUsers(1)">
+                    <select id="user-filter-status"
+                        class="bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-primary text-slate-800 dark:text-slate-100">
+                        <option value="">Tất cả trạng thái</option>
+                        <option value="true">Hoạt động</option>
+                        <option value="false">Đã chặn</option>
+                    </select>
+                    <button onclick="loadUsers(1)"
+                        class="bg-primary hover:bg-primary-600 text-white px-5 py-2.5 rounded-xl transition text-sm font-medium flex items-center justify-center gap-2">
+                        <i class="fas fa-search"></i>
+                        <span class="sm:hidden">Tìm</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Users Table -->
+            <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700">
+                <table class="w-full">
+                    <thead class="bg-slate-50 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700">
+                        <tr>
+                            <th class="text-left p-4 font-semibold text-slate-700 dark:text-slate-300 text-sm">User</th>
+                            <th
+                                class="text-left p-4 font-semibold text-slate-700 dark:text-slate-300 text-sm hidden md:table-cell">
+                                Email</th>
+                            <th class="text-left p-4 font-semibold text-slate-700 dark:text-slate-300 text-sm">Vai trò
+                            </th>
+                            <th class="text-center p-4 font-semibold text-slate-700 dark:text-slate-300 text-sm">Trạng
+                                thái</th>
+                            <th
+                                class="text-left p-4 font-semibold text-slate-700 dark:text-slate-300 text-sm hidden lg:table-cell">
+                                Ngày tham gia</th>
+                            <th class="text-center p-4 font-semibold text-slate-700 dark:text-slate-300 text-sm">Hành
+                                động</th>
+                        </tr>
+                    </thead>
+                    <tbody id="user-list-body" class="divide-y divide-slate-100 dark:divide-slate-700">
+                        <tr>
+                            <td colspan="6" class="text-center p-6 text-slate-500 dark:text-slate-400">
+                                <i class="fas fa-spinner fa-spin text-primary mr-2"></i>Đang tải...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            <div id="user-pagination" class="flex justify-center gap-2 mt-4"></div>
+        </section>
+
+        <!-- Knowledge Base Management -->
+        <section
+            class="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 mb-8">
+            <h2 class="text-lg font-bold text-slate-800 dark:text-slate-100 mb-4 flex items-center">
+                <i class="fas fa-book text-emerald-500 mr-2"></i>
+                Quản Lý Tri Thức (Knowledge Base)
+            </h2>
+
+            <!-- Upload Form -->
+            <div
+                class="mb-6 p-5 bg-slate-50 dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700">
+                <h3 class="font-semibold text-slate-700 dark:text-slate-200 mb-3 flex items-center">
+                    <i class="fas fa-upload text-blue-500 mr-2"></i>
+                    Tải lên PDF mới
+                </h3>
+                <form id="upload-pdf-form" class="flex flex-col md:flex-row gap-4 items-stretch md:items-end">
+                    <div class="flex-1">
+                        <label class="block text-sm font-medium text-slate-600 dark:text-slate-400 mb-2">Chọn file
+                            PDF</label>
+                        <input type="file" id="pdf-file" accept=".pdf" required
+                            class="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-primary text-slate-700 dark:text-slate-200 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-primary file:text-white hover:file:bg-primary-600 file:cursor-pointer">
+                    </div>
+                    <div class="w-full md:w-48">
+                        <label class="block text-sm font-medium text-slate-600 dark:text-slate-400 mb-2">Danh
+                            mục</label>
+                        <select id="pdf-category"
+                            class="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-primary text-slate-700 dark:text-slate-200">
+                            <option value="General">Chung</option>
+                            <option value="Psychology">Tâm lý học</option>
+                            <option value="Therapy">Trị liệu</option>
+                            <option value="Self-Help">Tự giúp đỡ</option>
+                        </select>
+                    </div>
+                    <button type="submit" id="upload-btn"
+                        class="bg-emerald-500 hover:bg-emerald-600 text-white px-6 py-2.5 rounded-xl transition text-sm font-medium whitespace-nowrap flex items-center justify-center gap-2">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <span>Tải lên</span>
+                    </button>
+                </form>
+                <div id="upload-status" class="mt-3 text-sm"></div>
+            </div>
+
+            <!-- KB Maintenance Tools -->
+            <div
+                class="mb-6 p-4 bg-amber-50 dark:bg-amber-900/20 rounded-xl border border-amber-200 dark:border-amber-800">
+                <h3 class="font-semibold text-amber-700 dark:text-amber-300 mb-3 flex items-center">
+                    <i class="fas fa-tools text-amber-500 mr-2"></i>
+                    Công cụ bảo trì Knowledge Base
+                </h3>
+                <div class="flex flex-wrap gap-3">
+                    <button onclick="purgeOrphanData()"
+                        class="px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-xl text-sm font-medium transition flex items-center gap-2">
+                        <i class="fas fa-broom"></i>
+                        <span>Dọn dữ liệu mồ côi</span>
+                    </button>
+                    <button onclick="resetKnowledgeBase()"
+                        class="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-xl text-sm font-medium transition flex items-center gap-2">
+                        <i class="fas fa-trash-alt"></i>
+                        <span>Reset toàn bộ KB</span>
+                    </button>
+                </div>
+                <p class="text-xs text-amber-600 dark:text-amber-400 mt-2">
+                    <i class="fas fa-info-circle mr-1"></i>
+                    <strong>Dọn mồ côi:</strong> Xóa chunks của các file đã bị xóa thủ công.
+                    <strong>Reset KB:</strong> Xóa toàn bộ dữ liệu vector và cache (CẢNH BÁO: Không thể hoàn tác!)
+                </p>
+            </div>
+
+            <!-- PDF Files Table -->
+            <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700">
+                <table class="w-full" id="knowledge-table">
+                    <thead class="bg-slate-50 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700">
+                        <tr>
+                            <th class="text-left p-4 font-semibold text-slate-700 dark:text-slate-300 text-sm">Tên File
+                            </th>
+                            <th class="text-left p-4 font-semibold text-slate-700 dark:text-slate-300 text-sm">Kích
+                                thước</th>
+                            <th
+                                class="text-left p-4 font-semibold text-slate-700 dark:text-slate-300 text-sm hidden sm:table-cell">
+                                Ngày tải lên</th>
+                            <th class="text-center p-4 font-semibold text-slate-700 dark:text-slate-300 text-sm w-24">
+                                Xóa</th>
+                        </tr>
+                    </thead>
+                    <tbody id="knowledge-files-body" class="divide-y divide-slate-100 dark:divide-slate-700">
+                        <tr>
+                            <td colspan="4" class="text-center p-6 text-slate-500 dark:text-slate-400">
+                                <i class="fas fa-spinner fa-spin text-primary mr-2"></i>Đang tải...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div id="knowledge-empty" class="hidden text-center py-12 text-slate-400 dark:text-slate-500">
+                <i class="fas fa-folder-open text-5xl mb-3"></i>
+                <p class="font-medium">Chưa có file PDF nào</p>
+                <p class="text-sm">Hãy tải lên file đầu tiên!</p>
+            </div>
+        </section>
+
+        <!-- System Configuration -->
+        <section
+            class="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 mb-8">
+            <h2 class="text-lg font-bold text-slate-800 dark:text-slate-100 mb-4 flex items-center">
+                <i class="fas fa-cogs text-purple-500 mr-2"></i>
+                Cấu Hình Hệ Thống
+            </h2>
+
+            <!-- Loading State -->
+            <div id="config-loading" class="text-center py-12">
+                <i class="fas fa-spinner fa-spin text-4xl text-slate-300 dark:text-slate-600 mb-3"></i>
+                <p class="text-slate-500 dark:text-slate-400">Đang tải cấu hình...</p>
+            </div>
+
+            <!-- Error State -->
+            <div id="config-error" class="hidden">
+                <div class="bg-red-50 dark:bg-red-900/30 border-l-4 border-red-500 p-4 rounded-r-xl">
+                    <div class="flex items-center">
+                        <i class="fas fa-exclamation-circle text-red-500 mr-2"></i>
+                        <p class="text-red-700 dark:text-red-300" id="config-error-message"></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Config Table -->
+            <div id="config-table"
+                class="hidden overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700">
+                <table class="w-full">
+                    <thead class="bg-slate-50 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700">
+                        <tr>
+                            <th class="text-left p-4 font-semibold text-slate-700 dark:text-slate-300 text-sm">Cấu Hình
+                            </th>
+                            <th
+                                class="text-left p-4 font-semibold text-slate-700 dark:text-slate-300 text-sm hidden md:table-cell">
+                                Mô Tả</th>
+                            <th class="text-left p-4 font-semibold text-slate-700 dark:text-slate-300 text-sm">Giá Trị
+                            </th>
+                            <th class="text-center p-4 font-semibold text-slate-700 dark:text-slate-300 text-sm w-32">
+                                Thao Tác</th>
+                        </tr>
+                    </thead>
+                    <tbody id="config-items" class="divide-y divide-slate-100 dark:divide-slate-700">
+                        <!-- Config items will be loaded here -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white dark:bg-slate-800 border-t border-slate-200 dark:border-slate-700 py-6 mt-8">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 text-center text-sm text-slate-500 dark:text-slate-400">
+            <p>© 2025 TamLy Bot - Admin Dashboard</p>
+        </div>
+    </footer>
+
+    <!-- Theme Manager -->
+    <script src="/js/theme.js"></script>
+
+    <!-- Toast Notification Script -->
+    <script src="/js/toast.js?v=20241220"></script>
+
+    <!-- Tab Manager (load before admin.js) -->
+    <script src="/js/tab_manager.js?v=20241222d"
+        onerror="console.error('❌ FAILED TO LOAD tab_manager.js'); alert('Lỗi: Không thể tải TabManager. Vui lòng refresh (Ctrl+F5)');">
+        </script>
+
+    <!-- Admin Dashboard Script -->
+    <script src="/js/admin.js?v=20241222d"></script>
+
+    <!-- JavaScript -->
+    <script>
+        // ==========================================
+        // Authentication Helper Functions
+        // ==========================================
+
+        function getAuthToken() {
+            const token = window.TabManager ? window.TabManager.getToken() : null;
+            return token ? `Bearer ${token}` : null;
+        }
+
+        function getAuthHeaders() {
+            const headers = {
+                'Content-Type': 'application/json'
+            };
+
+            const token = window.TabManager ? window.TabManager.getToken() : null;
+            if (token) {
+                headers['Authorization'] = `Bearer ${token}`;
+            }
+
+            return headers;
+        }
+
+        // ==========================================
+        // Dashboard Data Loading Functions
+        // ==========================================
+
+        async function loadOverviewStats() {
+            try {
+                const response = await fetch('/api/v1/admin/stats/overview', {
+                    headers: getAuthHeaders()
+                });
+                const data = await response.json();
+
+                const container = document.getElementById('overview-stats');
+                container.innerHTML = `
+                    <div class="stat-card">
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="w-12 h-12 rounded-xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
+                                <i class="fas fa-users text-xl text-blue-600 dark:text-blue-400"></i>
+                            </div>
+                        </div>
+                        <div class="stat-value">${data.total_users || 0}</div>
+                        <div class="stat-label">Tổng Người Dùng</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="w-12 h-12 rounded-xl bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center">
+                                <i class="fas fa-comments text-xl text-emerald-600 dark:text-emerald-400"></i>
+                            </div>
+                        </div>
+                        <div class="stat-value">${data.total_conversations || 0}</div>
+                        <div class="stat-label">Cuộc Trò Chuyện</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="w-12 h-12 rounded-xl bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
+                                <i class="fas fa-message text-xl text-purple-600 dark:text-purple-400"></i>
+                            </div>
+                        </div>
+                        <div class="stat-value">${data.total_messages || 0}</div>
+                        <div class="stat-label">Tin Nhắn</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="w-12 h-12 rounded-xl bg-red-100 dark:bg-red-900/30 flex items-center justify-center">
+                                <i class="fas fa-exclamation-triangle text-xl text-red-600 dark:text-red-400"></i>
+                            </div>
+                        </div>
+                        <div class="stat-value">${data.sos_alerts || 0}</div>
+                        <div class="stat-label">Cảnh Báo SOS</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="w-12 h-12 rounded-xl bg-teal-100 dark:bg-teal-900/30 flex items-center justify-center">
+                                <i class="fas fa-user-check text-xl text-teal-600 dark:text-teal-400"></i>
+                            </div>
+                        </div>
+                        <div class="stat-value">${data.active_users_7d || 0}</div>
+                        <div class="stat-label">Người Dùng Hoạt Động (7 ngày)</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="w-12 h-12 rounded-xl bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center">
+                                <i class="fas fa-chart-line text-xl text-orange-600 dark:text-orange-400"></i>
+                            </div>
+                        </div>
+                        <div class="stat-value">${data.avg_messages_per_conversation || 0}</div>
+                        <div class="stat-label">TB Tin Nhắn/Cuộc Trò Chuyện</div>
+                    </div>
+                `;
+            } catch (error) {
+                console.error('Error loading overview stats:', error);
+            }
+        }
+
+        async function loadWordCloud() {
+            try {
+                const response = await fetch('/api/v1/admin/stats/word-cloud?limit=20', {
+                    headers: getAuthHeaders()
+                });
+                const data = await response.json();
+
+                const isDark = document.documentElement.classList.contains('dark');
+                const textColor = isDark ? '#f1f5f9' : '#1e293b';
+                const gridColor = isDark ? '#334155' : '#e2e8f0';
+
+                const ctx = document.getElementById('wordCloudChart');
+                new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: data.words.map(w => w.text),
+                        datasets: [{
+                            label: 'Tần suất',
+                            data: data.words.map(w => w.value),
+                            backgroundColor: isDark ? 'rgba(129, 140, 248, 0.6)' : 'rgba(99, 102, 241, 0.6)',
+                            borderColor: isDark ? 'rgb(129, 140, 248)' : 'rgb(99, 102, 241)',
+                            borderWidth: 1,
+                            borderRadius: 6
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false },
+                            title: {
+                                display: true,
+                                text: `Top 20 từ khóa (${data.total_messages_analyzed} tin nhắn)`,
+                                color: textColor
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: { color: textColor },
+                                grid: { color: gridColor }
+                            },
+                            x: {
+                                ticks: { color: textColor },
+                                grid: { color: gridColor }
+                            }
+                        }
+                    }
+                });
+            } catch (error) {
+                console.error('Error loading word cloud:', error);
+            }
+        }
+
+        async function loadMoodTrends() {
+            try {
+                const response = await fetch('/api/v1/admin/stats/mood-trends?days=30', {
+                    headers: getAuthHeaders()
+                });
+
+                if (!response.ok) {
+                    console.warn('Mood trends API not available:', response.status);
+                    return;
+                }
+
+                const data = await response.json();
+
+                if (!data || !data.mood_distribution) {
+                    console.warn('Invalid mood trends data structure');
+                    return;
+                }
+
+                const isDark = document.documentElement.classList.contains('dark');
+                const textColor = isDark ? '#f1f5f9' : '#1e293b';
+
+                const ctx = document.getElementById('moodTrendsChart');
+                new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Rất tệ (1)', 'Tệ (2)', 'Trung bình (3)', 'Tốt (4)', 'Rất tốt (5)'],
+                        datasets: [{
+                            data: [
+                                data.mood_distribution['1'] || 0,
+                                data.mood_distribution['2'] || 0,
+                                data.mood_distribution['3'] || 0,
+                                data.mood_distribution['4'] || 0,
+                                data.mood_distribution['5'] || 0
+                            ],
+                            backgroundColor: [
+                                'rgb(239, 68, 68)',
+                                'rgb(251, 146, 60)',
+                                'rgb(250, 204, 21)',
+                                'rgb(34, 197, 94)',
+                                'rgb(59, 130, 246)'
+                            ],
+                            borderWidth: 0
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        cutout: '60%',
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: { color: textColor, padding: 15 }
+                            },
+                            title: {
+                                display: true,
+                                text: `Tổng: ${data.total_entries || 0} đánh giá | TB: ${data.average_mood || 0}`,
+                                color: textColor
+                            }
+                        }
+                    }
+                });
+            } catch (error) {
+                console.error('Error loading mood trends:', error);
+            }
+        }
+
+        // ==========================================
+        // User Management
+        // ==========================================
+
+        let currentUserPage = 1;
+        const usersPerPage = 10;
+
+        async function loadUsers(page = 1) {
+            currentUserPage = page;
+            const search = document.getElementById('user-search').value;
+            const statusFilter = document.getElementById('user-filter-status').value;
+            const tbody = document.getElementById('user-list-body');
+
+            tbody.innerHTML = '<tr><td colspan="6" class="text-center p-6"><i class="fas fa-spinner fa-spin text-primary"></i></td></tr>';
+
+            try {
+                let url = `/api/v1/admin/users/?page=${page}&page_size=${usersPerPage}`;
+                if (search) url += `&search=${encodeURIComponent(search)}`;
+                if (statusFilter) url += `&is_active=${statusFilter}`;
+
+                const response = await fetch(url, {
+                    headers: getAuthHeaders()
+                });
+                if (!response.ok) throw new Error('Failed to load users');
+
+                const data = await response.json();
+                renderUsers(data.users);
+                renderPagination(data);
+            } catch (error) {
+                console.error('Error loading users:', error);
+                tbody.innerHTML = `<tr><td colspan="6" class="text-center p-6 text-red-500 dark:text-red-400">Lỗi: ${error.message}</td></tr>`;
+            }
+        }
+
+        function renderUsers(users) {
+            const tbody = document.getElementById('user-list-body');
+            if (users.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="text-center p-6 text-slate-500 dark:text-slate-400">Không tìm thấy người dùng nào.</td></tr>';
+                return;
+            }
+
+            const isSuperAdmin = checkIsSuperAdmin();
+
+            tbody.innerHTML = users.map(user => `
+                <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition">
+                    <td class="p-4">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white font-bold text-sm">
+                                ${user.username ? user.username.charAt(0).toUpperCase() : '?'}
+                            </div>
+                            <div>
+                                <span class="text-sm font-medium text-slate-800 dark:text-slate-100">${escapeHtml(user.username || 'N/A')}</span>
+                                <p class="text-xs text-slate-500 dark:text-slate-400 md:hidden">${escapeHtml(user.email || '')}</p>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="p-4 text-sm text-slate-600 dark:text-slate-300 hidden md:table-cell">${escapeHtml(user.email || 'N/A')}</td>
+                    <td class="p-4">
+                        <span class="px-3 py-1 text-xs rounded-full font-medium ${getRoleBadgeClass(user.role)}">
+                            ${user.role}
+                        </span>
+                    </td>
+                    <td class="p-4 text-center">
+                        ${user.is_active
+                    ? '<span class="inline-flex items-center gap-1 text-emerald-600 dark:text-emerald-400 text-xs font-medium"><i class="fas fa-check-circle"></i><span class="hidden sm:inline">Active</span></span>'
+                    : '<span class="inline-flex items-center gap-1 text-red-600 dark:text-red-400 text-xs font-medium"><i class="fas fa-ban"></i><span class="hidden sm:inline">Banned</span></span>'}
+                    </td>
+                    <td class="p-4 text-sm text-slate-500 dark:text-slate-400 hidden lg:table-cell">${new Date(user.created_at).toLocaleDateString('vi-VN')}</td>
+                    <td class="p-4 text-center">
+                        <div class="flex items-center justify-center gap-2">
+                            ${user.role !== 'admin' && user.role !== 'super_admin' ? `
+                                ${user.is_active
+                        ? `<button onclick="toggleBan('${user.id}', true)" class="p-2 rounded-lg text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30" title="Ban User"><i class="fas fa-ban"></i></button>`
+                        : `<button onclick="toggleBan('${user.id}', false)" class="p-2 rounded-lg text-emerald-500 hover:bg-emerald-50 dark:hover:bg-emerald-900/30" title="Unban User"><i class="fas fa-unlock"></i></button>`
+                    }
+                                ${isSuperAdmin ? `<button onclick="toggleRole('${user.id}', 'promote')" class="p-2 rounded-lg text-purple-500 hover:bg-purple-50 dark:hover:bg-purple-900/30" title="Promote to Admin"><i class="fas fa-user-shield"></i></button>` : ''}
+                            ` : ''}
+                            ${user.role === 'admin' && isSuperAdmin ? `
+                                <button onclick="toggleRole('${user.id}', 'demote')" class="p-2 rounded-lg text-orange-500 hover:bg-orange-50 dark:hover:bg-orange-900/30" title="Demote to User"><i class="fas fa-user-minus"></i></button>
+                            ` : ''}
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function checkIsSuperAdmin() {
+            try {
+                const token = window.TabManager ? window.TabManager.getToken() : null;
+                if (!token) return false;
+                const base64Url = token.split('.')[1];
+                const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+                const jsonPayload = decodeURIComponent(atob(base64).split('').map(c => {
+                    return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+                }).join(''));
+                const payload = JSON.parse(jsonPayload);
+                return payload.role === 'super_admin';
+            } catch (e) {
+                return false;
+            }
+        }
+
+        function getRoleBadgeClass(role) {
+            switch (role) {
+                case 'admin': return 'bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300';
+                case 'super_admin': return 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 font-bold';
+                default: return 'bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300';
+            }
+        }
+
+        function renderPagination(data) {
+            const container = document.getElementById('user-pagination');
+            const totalPages = Math.ceil(data.total / data.page_size);
+
+            if (totalPages <= 1) {
+                container.innerHTML = '';
+                return;
+            }
+
+            let html = '';
+            html += `<button onclick="loadUsers(${data.page - 1})" ${data.page === 1 ? 'disabled' : ''} 
+                class="px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed text-sm text-slate-700 dark:text-slate-200 transition">Prev</button>`;
+
+            html += `<span class="px-4 py-2 text-sm text-slate-600 dark:text-slate-400">Trang ${data.page} / ${totalPages}</span>`;
+
+            html += `<button onclick="loadUsers(${data.page + 1})" ${!data.has_more ? 'disabled' : ''} 
+                class="px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed text-sm text-slate-700 dark:text-slate-200 transition">Next</button>`;
+
+            container.innerHTML = html;
+        }
+
+        async function toggleBan(userId, doBan) {
+            if (doBan && !confirm('Bạn có chắc chắn muốn khóa tài khoản người dùng này?')) return;
+            if (!doBan && !confirm('Bạn có chắc chắn muốn mở khóa tài khoản này?')) return;
+
+            const endpoint = `/api/v1/admin/users/${userId}/${doBan ? 'ban' : 'unban'}`;
+            console.log(`🔄 ${doBan ? 'Banning' : 'Unbanning'} user ${userId}...`);
+
+            try {
+                const response = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: getAuthHeaders()
+                });
+
+                console.log(`📡 Response status: ${response.status}`);
+
+                if (!response.ok) {
+                    const data = await response.json();
+                    console.error('❌ Error response:', data);
+                    throw new Error(data.detail || 'Action failed');
+                }
+
+                const result = await response.json();
+                console.log('✅ Success:', result);
+
+                loadUsers(currentUserPage);
+                if (window.showToast) {
+                    showToast(doBan ? 'Đã khóa tài khoản' : 'Đã mở khóa tài khoản', 'success');
+                }
+            } catch (error) {
+                console.error('❌ Error in toggleBan:', error);
+                if (window.showToast) {
+                    showToast(`Lỗi: ${error.message}`, 'error');
+                } else {
+                    alert(`Lỗi: ${error.message}`);
+                }
+            }
+        }
+
+        async function toggleRole(userId, action) {
+            const isPromote = action === 'promote';
+            const confirmMsg = isPromote
+                ? 'Bạn có chắc chắn muốn thăng cấp người dùng này lên Admin?'
+                : 'Bạn có chắc chắn muốn hạ cấp Admin này xuống User?';
+
+            if (!confirm(confirmMsg)) return;
+
+            const endpoint = `/api/v1/admin/users/${userId}/${action}`;
+            try {
+                const response = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: getAuthHeaders()
+                });
+                if (!response.ok) {
+                    const data = await response.json();
+                    throw new Error(data.detail || 'Action failed');
+                }
+                loadUsers(currentUserPage);
+                if (window.showToast) {
+                    showToast(isPromote ? 'Đã thăng cấp thành công' : 'Đã hạ cấp thành công', 'success');
+                }
+            } catch (error) {
+                if (window.showToast) {
+                    showToast(`Lỗi: ${error.message}`, 'error');
+                } else {
+                    alert(`Lỗi: ${error.message}`);
+                }
+            }
+        }
+
+
+        // ==========================================
+        // System Configuration Management
+        // ==========================================
+
+        const originalConfigValues = {};
+
+        async function loadSystemConfigs() {
+            const loadingEl = document.getElementById('config-loading');
+            const errorEl = document.getElementById('config-error');
+            const tableEl = document.getElementById('config-table');
+
+            try {
+                const response = await fetch('/api/v1/admin/config/', {
+                    headers: getAuthHeaders()
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+
+                const configs = await response.json();
+
+                configs.forEach(config => {
+                    originalConfigValues[config.key] = config.value;
+                });
+
+                renderConfigs(configs);
+
+                loadingEl.classList.add('hidden');
+                tableEl.classList.remove('hidden');
+
+            } catch (error) {
+                console.error('Error loading system configs:', error);
+                loadingEl.classList.add('hidden');
+                errorEl.classList.remove('hidden');
+                document.getElementById('config-error-message').textContent =
+                    `Không thể tải cấu hình: ${error.message}`;
+            }
+        }
+
+        function renderConfigs(configs) {
+            const container = document.getElementById('config-items');
+            container.innerHTML = '';
+
+            const configOrder = ['sys_prompt', 'sos_keywords', 'crisis_hotlines'];
+            const configNames = {
+                'sys_prompt': 'System Prompt',
+                'sos_keywords': 'SOS Keywords',
+                'crisis_hotlines': 'Crisis Hotlines'
+            };
+
+            const sortedConfigs = configOrder.map(key =>
+                configs.find(c => c.key === key)
+            ).filter(c => c);
+
+            sortedConfigs.forEach(config => {
+                const row = document.createElement('tr');
+                row.id = `config-row-${config.key}`;
+                row.className = 'hover:bg-slate-50 dark:hover:bg-slate-700/50 transition';
+                row.innerHTML = `
+                    <td class="p-4">
+                        <span class="font-medium text-slate-800 dark:text-slate-100">${configNames[config.key] || config.key}</span>
+                        <br>
+                        <code class="text-xs text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-900 px-2 py-0.5 rounded">${config.key}</code>
+                    </td>
+                    <td class="p-4 text-sm text-slate-600 dark:text-slate-400 hidden md:table-cell">${config.description || 'N/A'}</td>
+                    <td class="p-4">
+                        <div id="value-display-${config.key}">
+                            ${renderValueDisplay(config.key, config.value)}
+                        </div>
+                        <div id="value-edit-${config.key}" class="hidden">
+                            ${renderValueEdit(config.key, config.value)}
+                        </div>
+                    </td>
+                    <td class="p-4 text-center">
+                        <div id="actions-view-${config.key}">
+                            <button onclick="editConfig('${config.key}')" 
+                                class="px-4 py-2 bg-primary text-white rounded-xl hover:bg-primary-600 transition text-sm font-medium">
+                                <i class="fas fa-edit mr-1"></i>Sửa
+                            </button>
+                        </div>
+                        <div id="actions-edit-${config.key}" class="hidden flex gap-2 justify-center">
+                            <button onclick="saveConfig('${config.key}')" 
+                                id="save-btn-${config.key}"
+                                class="px-3 py-2 bg-emerald-500 text-white rounded-xl hover:bg-emerald-600 transition text-sm font-medium">
+                                <i class="fas fa-save mr-1"></i>Lưu
+                            </button>
+                            <button onclick="cancelEdit('${config.key}')" 
+                                class="px-3 py-2 bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-xl hover:bg-slate-300 dark:hover:bg-slate-600 transition text-sm font-medium">
+                                <i class="fas fa-times mr-1"></i>Hủy
+                            </button>
+                        </div>
+                        <div id="status-${config.key}" class="mt-2 text-xs"></div>
+                    </td>
+                `;
+                container.appendChild(row);
+            });
+        }
+
+        function renderValueDisplay(key, value) {
+            if (key === 'sys_prompt') {
+                const preview = value.length > 200 ? value.substring(0, 200) + '...' : value;
+                return `<div class="text-sm text-slate-700 dark:text-slate-300 whitespace-pre-wrap max-w-md">${escapeHtml(preview)}</div>`;
+            } else if (key === 'sos_keywords') {
+                const keywords = value.split(',').map(k => k.trim());
+                return `<div class="flex flex-wrap gap-1 max-w-md">${keywords.map(k =>
+                    `<span class="px-2 py-1 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 text-xs rounded-lg">${escapeHtml(k)}</span>`
+                ).join('')}</div>`;
+            } else if (key === 'crisis_hotlines') {
+                try {
+                    const hotlines = JSON.parse(value);
+                    return `<div class="text-xs space-y-1 max-w-md">${hotlines.map(h =>
+                        `<div class="text-slate-700 dark:text-slate-300">📞 ${escapeHtml(h.name || 'N/A')}: <strong>${escapeHtml(h.number || 'N/A')}</strong></div>`
+                    ).join('')}</div>`;
+                } catch (e) {
+                    return `<code class="text-xs text-slate-600 dark:text-slate-400">${escapeHtml(value.substring(0, 100))}...</code>`;
+                }
+            }
+            return `<span class="text-sm text-slate-700 dark:text-slate-300">${escapeHtml(value)}</span>`;
+        }
+
+        function renderValueEdit(key, value) {
+            const inputClass = "w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl p-3 text-sm focus:outline-none focus:border-primary text-slate-800 dark:text-slate-100";
+
+            if (key === 'sys_prompt') {
+                return `<textarea id="input-${key}" rows="5" class="${inputClass}">${escapeHtml(value)}</textarea>
+                    <div class="text-xs text-slate-500 dark:text-slate-400 mt-1">Tối thiểu 50 ký tự, tối đa 5000 ký tự</div>`;
+            } else if (key === 'sos_keywords') {
+                return `<input type="text" id="input-${key}" value="${escapeHtml(value)}" class="${inputClass}" />
+                    <div class="text-xs text-slate-500 dark:text-slate-400 mt-1">Các từ khóa cách nhau bởi dấu phẩy (tối thiểu 3 từ)</div>`;
+            } else if (key === 'crisis_hotlines') {
+                return `<textarea id="input-${key}" rows="8" class="${inputClass} font-mono">${escapeHtml(value)}</textarea>
+                    <div class="text-xs text-slate-500 dark:text-slate-400 mt-1">JSON array format. Mỗi mục phải có "name" và "number"</div>`;
+            }
+            return `<input type="text" id="input-${key}" value="${escapeHtml(value)}" class="${inputClass}" />`;
+        }
+
+        function editConfig(key) {
+            document.getElementById(`value-display-${key}`).classList.add('hidden');
+            document.getElementById(`value-edit-${key}`).classList.remove('hidden');
+            document.getElementById(`actions-view-${key}`).classList.add('hidden');
+            document.getElementById(`actions-edit-${key}`).classList.remove('hidden');
+            document.getElementById(`status-${key}`).innerHTML = '';
+        }
+
+        function cancelEdit(key) {
+            const inputEl = document.getElementById(`input-${key}`);
+            inputEl.value = originalConfigValues[key];
+
+            document.getElementById(`value-display-${key}`).classList.remove('hidden');
+            document.getElementById(`value-edit-${key}`).classList.add('hidden');
+            document.getElementById(`actions-view-${key}`).classList.remove('hidden');
+            document.getElementById(`actions-edit-${key}`).classList.add('hidden');
+            document.getElementById(`status-${key}`).innerHTML = '';
+        }
+
+        async function saveConfig(key) {
+            const inputEl = document.getElementById(`input-${key}`);
+            const saveBtn = document.getElementById(`save-btn-${key}`);
+            const statusEl = document.getElementById(`status-${key}`);
+            const newValue = inputEl.value;
+
+            const validationError = validateConfigValue(key, newValue);
+            if (validationError) {
+                statusEl.innerHTML = `<span class="text-red-600 dark:text-red-400"><i class="fas fa-exclamation-circle"></i> ${validationError}</span>`;
+                return;
+            }
+
+            saveBtn.disabled = true;
+            saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang lưu...';
+            statusEl.innerHTML = '';
+
+            try {
+                const response = await fetch(`/api/v1/admin/config/${key}`, {
+                    method: 'PUT',
+                    headers: {
+                        ...getAuthHeaders(),
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ value: newValue })
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.detail || `HTTP ${response.status}`);
+                }
+
+                const updatedConfig = await response.json();
+
+                originalConfigValues[key] = updatedConfig.value;
+
+                document.getElementById(`value-display-${key}`).innerHTML =
+                    renderValueDisplay(key, updatedConfig.value);
+
+                statusEl.innerHTML = '<span class="text-emerald-600 dark:text-emerald-400"><i class="fas fa-check-circle"></i> Đã lưu</span>';
+
+                setTimeout(() => {
+                    cancelEdit(key);
+                }, 1500);
+
+            } catch (error) {
+                console.error('Error saving config:', error);
+                statusEl.innerHTML = `<span class="text-red-600 dark:text-red-400"><i class="fas fa-times-circle"></i> ${error.message}</span>`;
+                saveBtn.disabled = false;
+                saveBtn.innerHTML = '<i class="fas fa-save mr-1"></i>Lưu';
+            }
+        }
+
+        function validateConfigValue(key, value) {
+            if (key === 'sys_prompt') {
+                if (!value || value.trim().length < 50) {
+                    return 'System prompt phải có ít nhất 50 ký tự';
+                }
+                if (value.length > 5000) {
+                    return 'System prompt không được vượt quá 5000 ký tự';
+                }
+            } else if (key === 'sos_keywords') {
+                if (!value || !value.trim()) {
+                    return 'SOS keywords không được để trống';
+                }
+                const keywords = value.split(',').map(k => k.trim()).filter(k => k);
+                if (keywords.length < 3) {
+                    return 'Phải có ít nhất 3 từ khóa SOS';
+                }
+            } else if (key === 'crisis_hotlines') {
+                try {
+                    const hotlines = JSON.parse(value);
+                    if (!Array.isArray(hotlines)) {
+                        return 'Crisis hotlines phải là JSON array';
+                    }
+                    for (let h of hotlines) {
+                        if (!h.name || !h.number) {
+                            return 'Mỗi hotline phải có "name" và "number"';
+                        }
+                    }
+                } catch (e) {
+                    return 'JSON không hợp lệ: ' + e.message;
+                }
+            }
+            return null;
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // ==========================================
+        // Knowledge Base Management
+        // ==========================================
+
+        async function loadKnowledgeFiles() {
+            console.log('📚 Loading knowledge files...');
+            const tbody = document.getElementById('knowledge-files-body');
+            const table = document.getElementById('knowledge-table');
+            const emptyState = document.getElementById('knowledge-empty');
+
+            tbody.innerHTML = '<tr><td colspan="4" class="text-center p-6"><i class="fas fa-spinner fa-spin text-primary"></i></td></tr>';
+
+            try {
+                const response = await fetch('/api/v1/admin/knowledge/list', {
+                    headers: getAuthHeaders()
+                });
+
+                console.log('📚 Knowledge API response status:', response.status);
+
+                if (!response.ok) throw new Error('Failed to load files');
+
+                const data = await response.json();
+                console.log('📚 Knowledge files data:', data);
+
+                if (!data.files || data.files.length === 0) {
+                    console.log('📚 No files found, showing empty state');
+                    table.classList.add('hidden');
+                    emptyState.classList.remove('hidden');
+                    return;
+                }
+
+                console.log(`📚 Rendering ${data.files.length} files`);
+                table.classList.remove('hidden');
+                emptyState.classList.add('hidden');
+
+                tbody.innerHTML = data.files.map(file => `
+                    <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition">
+                        <td class="p-4">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-10 h-10 rounded-xl bg-red-100 dark:bg-red-900/30 flex items-center justify-center">
+                                    <i class="fas fa-file-pdf text-red-500"></i>
+                                </div>
+                                <span class="text-sm font-medium text-slate-800 dark:text-slate-100">${escapeHtml(file.filename)}</span>
+                            </div>
+                        </td>
+                        <td class="p-4 text-sm text-slate-600 dark:text-slate-400">${file.size_mb} MB</td>
+                        <td class="p-4 text-sm text-slate-500 dark:text-slate-400 hidden sm:table-cell">${new Date(file.uploaded_at * 1000).toLocaleDateString('vi-VN')}</td>
+                        <td class="p-4 text-center">
+                            <button onclick="deleteKnowledgeFile('${escapeHtml(file.filename)}')" 
+                                class="p-2 rounded-lg text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 transition" title="Xóa file">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `).join('');
+
+            } catch (error) {
+                console.error('Error loading knowledge files:', error);
+                tbody.innerHTML = `<tr><td colspan="4" class="text-center p-6 text-red-500 dark:text-red-400">Lỗi: ${error.message}</td></tr>`;
+            }
+        }
+
+        async function uploadPDF(event) {
+            event.preventDefault();
+
+            const fileInput = document.getElementById('pdf-file');
+            const categorySelect = document.getElementById('pdf-category');
+            const uploadBtn = document.getElementById('upload-btn');
+            const statusDiv = document.getElementById('upload-status');
+
+            if (!fileInput.files || fileInput.files.length === 0) {
+                statusDiv.innerHTML = '<span class="text-red-600 dark:text-red-400"><i class="fas fa-exclamation-circle"></i> Vui lòng chọn file PDF</span>';
+                return;
+            }
+
+            const file = fileInput.files[0];
+            const category = categorySelect.value;
+
+            uploadBtn.disabled = true;
+            uploadBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang tải...';
+            statusDiv.innerHTML = '<span class="text-blue-600 dark:text-blue-400"><i class="fas fa-spinner fa-spin"></i> Đang xử lý file...</span>';
+
+            try {
+                const formData = new FormData();
+                formData.append('file', file);
+                formData.append('category', category);
+
+                const authToken = getAuthToken();
+                const headers = {};
+                if (authToken) {
+                    headers['Authorization'] = authToken;
+                }
+
+                const response = await fetch('/api/v1/admin/knowledge/upload', {
+                    method: 'POST',
+                    headers: headers,
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.detail || 'Upload failed');
+                }
+
+                const result = await response.json();
+                statusDiv.innerHTML = `<span class="text-emerald-600 dark:text-emerald-400"><i class="fas fa-check-circle"></i> ${result.message} (${result.chunks} chunks)</span>`;
+
+                fileInput.value = '';
+                loadKnowledgeFiles();
+
+            } catch (error) {
+                console.error('Upload error:', error);
+                statusDiv.innerHTML = `<span class="text-red-600 dark:text-red-400"><i class="fas fa-times-circle"></i> Lỗi: ${error.message}</span>`;
+            } finally {
+                uploadBtn.disabled = false;
+                uploadBtn.innerHTML = '<i class="fas fa-cloud-upload-alt"></i> <span>Tải lên</span>';
+            }
+        }
+
+        async function deleteKnowledgeFile(filename) {
+            if (!confirm(`Bạn có chắc chắn muốn xóa file "${filename}"?\n\nHành động này sẽ xóa file và toàn bộ dữ liệu vector (chunks) liên quan khỏi hệ thống. Không thể hoàn tác.`)) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/v1/admin/knowledge/${encodeURIComponent(filename)}`, {
+                    method: 'DELETE',
+                    headers: getAuthHeaders()
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.detail || 'Delete failed');
+                }
+
+                if (window.showToast) {
+                    showToast('Đã xóa file thành công!', 'success');
+                }
+                loadKnowledgeFiles();
+
+            } catch (error) {
+                console.error('Delete error:', error);
+                if (window.showToast) {
+                    showToast(`Lỗi: ${error.message}`, 'error');
+                } else {
+                    alert(`Lỗi: ${error.message}`);
+                }
+            }
+        }
+
+        // ==========================================
+        // Knowledge Base Maintenance Functions
+        // ==========================================
+
+        async function purgeOrphanData() {
+            if (!confirm('Dọn dẹp các chunks trong ChromaDB mà file PDF gốc đã bị xóa?\n\nThao tác này an toàn và giúp tối ưu hệ thống.')) {
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/v1/admin/knowledge/purge-orphans', {
+                    method: 'DELETE',
+                    headers: getAuthHeaders()
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.detail || 'Purge failed');
+                }
+
+                const data = await response.json();
+                const message = data.orphaned_sources && data.orphaned_sources.length > 0
+                    ? `Đã dọn ${data.chunks_removed || 0} chunks từ ${data.orphaned_sources.length} nguồn mồ côi`
+                    : 'Không tìm thấy dữ liệu mồ côi nào';
+
+                if (window.showToast) {
+                    showToast(message, 'success');
+                } else {
+                    alert(message);
+                }
+
+                loadKnowledgeFiles();
+
+            } catch (error) {
+                console.error('Purge error:', error);
+                if (window.showToast) {
+                    showToast(`Lỗi: ${error.message}`, 'error');
+                } else {
+                    alert(`Lỗi: ${error.message}`);
+                }
+            }
+        }
+
+        async function resetKnowledgeBase() {
+            // First confirmation
+            if (!confirm('⚠️ CẢNH BÁO: Thao tác này sẽ XÓA TOÀN BỘ dữ liệu Knowledge Base!\n\n• Xóa tất cả chunks trong ChromaDB\n• Xóa semantic cache\n• Các file PDF vẫn được giữ nguyên\n\nBạn chắc chắn muốn tiếp tục?')) {
+                return;
+            }
+
+            // Second confirmation with typed input
+            const confirmText = prompt('Nhập "RESET" để xác nhận (không thể hoàn tác):');
+            if (confirmText !== 'RESET') {
+                if (window.showToast) {
+                    showToast('Đã hủy thao tác reset', 'info');
+                }
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/v1/admin/knowledge/reset-all', {
+                    method: 'DELETE',
+                    headers: getAuthHeaders()
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.detail || 'Reset failed');
+                }
+
+                const data = await response.json();
+                const message = `Đã reset Knowledge Base: ${data.chunks_deleted || 0} chunks đã xóa`;
+
+                if (window.showToast) {
+                    showToast(message, 'success');
+                } else {
+                    alert(message);
+                }
+
+                loadKnowledgeFiles();
+
+            } catch (error) {
+                console.error('Reset error:', error);
+                if (window.showToast) {
+                    showToast(`Lỗi: ${error.message}`, 'error');
+                } else {
+                    alert(`Lỗi: ${error.message}`);
+                }
+            }
+        }
+
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('📄 Admin page DOMContentLoaded');
+
+            // Ensure TabManager is initialized before checking auth
+            if (!window.TabManager) {
+                console.error('❌ CRITICAL: TabManager not loaded!');
+                alert('Lỗi hệ thống: TabManager không tải được. Vui lòng refresh trang.');
+                return;
+            }
+
+            console.log('✅ TabManager available:', {
+                exists: !!window.TabManager,
+                debugInfo: window.TabManager.getDebugInfo()
+            });
+
+            // Check authentication first (from admin.js)
+            if (typeof checkAuth === 'function' && !checkAuth()) {
+                return;
+            }
+
+            // Load all dashboard components
+            loadOverviewStats();
+            loadWordCloud();
+            loadMoodTrends();
+            loadSystemConfigs();
+            loadUsers();
+            loadKnowledgeFiles();
+
+            // Setup upload form handler
+            const uploadForm = document.getElementById('upload-pdf-form');
+            if (uploadForm) {
+                uploadForm.addEventListener('submit', uploadPDF);
+            }
+        });
+    </script>
+
+</body>
+
+</html>

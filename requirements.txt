@@ -1,0 +1,34 @@
+# Web Framework
+fastapi==0.109.0
+uvicorn[standard]==0.27.0
+python-multipart==0.0.9
+pydantic-settings==2.1.0
+email-validator==2.1.0
+
+# Database
+sqlalchemy[asyncio]==2.0.25
+alembic==1.13.1
+asyncpg==0.29.0
+
+# Authentication
+python-jose[cryptography]==3.3.0
+passlib[argon2]==1.7.4
+# bcrypt removed to avoid conflict with chromadb and 72-byte limit
+
+# Cache
+redis==5.0.1
+
+# AI & RAG
+google-generativeai>=0.5.0
+chromadb==0.5.0
+pypdf==4.0.0
+langchain==0.1.0
+rank-bm25==0.2.2
+
+# Utilities
+python-dotenv==1.0.0
+
+# Production & Monitoring (Phase 4)
+slowapi==0.1.9
+# prometheus-fastapi-instrumentator removed due to conflict with uvicorn --proxy-headers
+# causing ERR_CONTENT_LENGTH_MISMATCH errors. Consider alternative monitoring solutions.
